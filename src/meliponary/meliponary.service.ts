@@ -1,10 +1,15 @@
-import {ConflictException, Injectable} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MeliponaryService {
   constructor(private prisma: PrismaService) {}
+
+
+  async findAll() {
+    return this.prisma.meliponary.findMany();
+  }
 
   async create(data: any) {
     // const userHaveMeliponary = await this.prisma.meliponary.findFirst({
@@ -22,19 +27,27 @@ export class MeliponaryService {
   }
 
   async findAllByUserId(userId) {
-    return await this.prisma.meliponary.findMany({
+    return this.prisma.meliponary.findMany({
       where: {
         userId: Number(userId),
       },
     });
   }
 
-    async findAll() {
-      return this.prisma.meliponary.findMany()
-    }
 
-  async findOne(id: number) {
-    return this.prisma.user.findUnique({ where: { id: Number(id) } });
+  async findById(id: number) {
+    const meliponary = await this.prisma.meliponary.findUnique({
+      where: { id },
+    });
+
+    if (!meliponary) {
+      throw new NotFoundException('Meliponário não encontrado!');
+    }
+    return this.prisma.meliponary.findFirst({
+      where: {
+        id,
+      },
+    });
   }
 
   async update(id: number, data: Prisma.MeliponaryCreateInput) {
@@ -45,6 +58,15 @@ export class MeliponaryService {
   }
 
   async delete(id: number) {
-    return this.prisma.user.delete({ where: { id: Number(id) } });
+    const meliponary = await this.prisma.meliponary.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!meliponary) {
+      throw new NotFoundException('Meliponário não encontrado!');
+    }
+
+
+    return this.prisma.meliponary.delete({ where: { id: Number(id) } });
   }
 }

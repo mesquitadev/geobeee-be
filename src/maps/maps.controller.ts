@@ -1,7 +1,5 @@
 import {Body, Controller, Get, Param, Post, UseGuards,} from '@nestjs/common';
 import {MapsService} from './maps.service';
-import {MapPersist} from "./dto/MapPersist";
-import {User} from "../decorator/current-user-decorator";
 import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 
 @Controller('/api/v1/maps')

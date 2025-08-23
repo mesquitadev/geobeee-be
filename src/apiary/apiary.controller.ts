@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, UseGuards,} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {ApiaryService} from './apiary.service';
 import {ApiaryPersist} from "./dto/ApiaryPersist";
 import {User} from "../decorator/current-user-decorator";
@@ -8,6 +8,12 @@ import {JwtAuthGuard} from "../auth/jwt-auth.guard";
 @UseGuards(JwtAuthGuard)
 export class ApiaryController {
     constructor(private apiaryService: ApiaryService) {}
+
+    @Post()
+    async create(@User() user: any, @Body() data: ApiaryPersist) {
+        data.userId = user.id
+        await this.apiaryService.create(data);
+    }
 
     @Get()
     async find(@User() user: any) {
@@ -19,9 +25,13 @@ export class ApiaryController {
         return this.apiaryService.findAll();
     }
 
-    @Post()
-    async create(@User() user: any, @Body() data: ApiaryPersist) {
-        data.userId = user.id
-        await this.apiaryService.create(data);
+    @Get("/:id")
+    async findById(@User() user: any, @Param('id') id: number) {
+        return this.apiaryService.findById(id);
+    }
+
+    @Delete("/:id")
+    async delete(@User() user: any, @Param('id') id: number) {
+        return this.apiaryService.delete(id);
     }
 }

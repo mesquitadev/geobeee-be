@@ -1,10 +1,12 @@
-import {ConflictException, Injectable} from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ApiaryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) {
+  }
+
   async create(data: any) {
     // const userHaveApiary = await this.prisma.apiary.findFirst({
     //   where: {
@@ -21,20 +23,28 @@ export class ApiaryService {
     return this.prisma.apiary.create({ data });
   }
 
+  async findById(id: number) {
+    const apiary = await this.prisma.apiary.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!apiary) {
+      throw new NotFoundException('Apiário não encontrado!');
+    }
+
+    return apiary;
+  }
+
   async findAll() {
-    return this.prisma.apiary.findMany()
+    return this.prisma.apiary.findMany();
   }
 
   async findAllByUserId(userId) {
     return this.prisma.apiary.findMany({
       where: {
         userId: Number(userId),
-      }
-    })
-  }
-
-  async findOne(id: number) {
-    return this.prisma.apiary.findUnique({ where: { id: Number(id) } });
+      },
+    });
   }
 
   async update(id: number, data: Prisma.ApiaryCreateInput) {
@@ -45,6 +55,15 @@ export class ApiaryService {
   }
 
   async delete(id: number) {
+    const apiary = await this.prisma.apiary.findUnique({
+      where: { id: Number(id) },
+    });
+
+    if (!apiary) {
+      throw new NotFoundException('Apiário não encontrado!');
+    }
+
+
     return this.prisma.apiary.delete({ where: { id: Number(id) } });
   }
 }
